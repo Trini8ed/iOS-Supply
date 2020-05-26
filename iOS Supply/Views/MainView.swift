@@ -9,18 +9,20 @@
 import SwiftUI
 
 struct MainView: View {
-    
-    //initalize our bluetooth controll
-    //var ble = BluetoothController()
-    var ch1 = ChannelView()
-    var ch2 = ChannelView()
+
+    var bluetoothController = BluetoothController()
     
     //initialize our viewmodels
     @ObservedObject var settingsVM = SettingsViewModel()
+    @ObservedObject var channel1VM = ChannelViewModel()
+    @ObservedObject var channel2VM = ChannelViewModel()
     
-//    init() {
-//        ble.testingBluetooth()
-//    }
+    init() {
+        bluetoothController.ch1NotifyDelegate = channel1VM
+        bluetoothController.ch2NotifyDelegate = channel2VM
+        channel1VM.channelWriteDelegate = bluetoothController
+        channel2VM.channelWriteDelegate = bluetoothController
+    }
     
     var body: some View {
         VStack (spacing: 10) {
@@ -39,14 +41,14 @@ struct MainView: View {
             
                 }.padding(.horizontal)
                 .padding(.horizontal)
-            ch1
+            ChannelView(channelVM: channel1VM)
             HStack {
               Text("Channel 2:").bold()
                 .font(.largeTitle)
                 Spacer()
             }.padding(.horizontal)
             .padding(.horizontal)
-            ch2
+            ChannelView(channelVM: channel2VM)
         }
     }
 }

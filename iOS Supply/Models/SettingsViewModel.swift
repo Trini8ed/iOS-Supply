@@ -8,6 +8,14 @@
 
 import Foundation
 
+protocol SettingsNotifyDelegate {
+    func Mode(data: Data?)
+}
+
+protocol SettingsWriteDelegate {
+    func Mode(value: Int)
+}
+
 enum Mode {
     case independent
     case serial
@@ -15,7 +23,7 @@ enum Mode {
     case disconnected
 }
 
-class SettingsViewModel: ObservableObject, SettingsDelegate {
+class SettingsViewModel: ObservableObject {
     
     @Published var mode: Mode = .independent
     

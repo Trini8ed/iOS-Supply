@@ -11,30 +11,6 @@ var time = 0
 import UIKit
 import CoreBluetooth
 
-protocol ChannelDelegate {
-    //Reading from the device
-    func NotifyVoltageOut(data: Data?)
-    func NotifyCurrentOut(data: Data?)
-    func NotifyVoltageSet(data: Data?)
-    func NotifyCurrentSet(data: Data?)
-    func NotifyPowerSet(data: Data?)
-    func NotifyLimiting(data: Data?)
-    
-    //Writing to the device
-    func WriteVoltageSet()
-    func WriteCurrentSet()
-    func WritePowerSet()
-    func WriteMode()
-}
-
-protocol SettingsDelegate {
-    //Reading from the device
-    func NotifyMode(data: Data?)
-    
-    //Writing to the device
-    func WriteMode()
-}
-
 enum BluetoothCommunication: String {
     case Service = "42000001-0000-0000-0000-000000000000"
     enum Channel1 {
@@ -94,57 +70,25 @@ enum BluetoothCommunication: String {
     }
 }
 
-//Quinns Definition table
-//420b0002-0000-0000-0000-000000000000 = MAX Vol Ch1 transmit
-//420b0003-0000-0000-0000-000000000000 = MAX Amp Ch1 transmit
-//420b0004-0000-0000-0000-000000000000 = INA260 voltage reading Ch1 transmit
-//420b0005-0000-0000-0000-000000000000 = INA260 current reading Ch1 transmit
-//420b0006-0000-0000-0000-000000000000 = POW state reading Ch1 transmit
-//420b0007-0000-0000-0000-000000000000 = C.V or C.C state reading Ch1 transmit
-//420b0008-0000-0000-0000-000000000000 = MAX Vol Ch2 transmit
-//420b0009-0000-0000-0000-000000000000 = MAX Amp Ch2 transmit
-//420b0010-0000-0000-0000-000000000000 = INA260 voltage reading Ch2 transmit
-//420b0011-0000-0000-0000-000000000000 = INA260 current reading Ch2 transmit
-//420b0012-0000-0000-0000-000000000000 = POW state reading Ch2 transmit
-//420b0013-0000-0000-0000-000000000000 = C.V or C.C state reading Ch2 transmit
-//420b0014-0000-0000-0000-000000000000 = Modes transmit
-//420b0015-0000-0000-0000-000000000000 = temperature transmit
-//420b0016-0000-0000-0000-000000000000 = rgb transmit
-//420b0017-0000-0000-0000-000000000000 = fanrpm transmit
-//420a0018-0000-0000-0000-000000000000 = MAX vol ch1 receive
-//420a0019-0000-0000-0000-000000000000 = MAX AMP ch1 receive
-//420a0020-0000-0000-0000-000000000000 = POW state ch1 receive
-//420a0021-0000-0000-0000-000000000000 = MAX vol ch2 receive
-//420a0022-0000-0000-0000-000000000000 = MAX AMP ch2 receive
-//420a0023-0000-0000-0000-000000000000 = POW state ch2 receive
-//420a0024-0000-0000-0000-000000000000 = modes receive
-//42000001-0000-0000-0000-000000000000 = service
+class BluetoothController: NSObject {
 
-class BluetoothController: UIViewController {
-    
     var centralManager: CBCentralManager!
     var blePeripheral: CBPeripheral?
-    var writeCharacteristics: [CBCharacteristic]? = []
+    var bleService: CBService?
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-    }
+    var ch1NotifyDelegate: ChannelNotifyDelegate?
+    var ch2NotifyDelegate: ChannelNotifyDelegate?
+    var settingsNotifyDelegate: SettingsNotifyDelegate?
     
-    func testingBluetooth() {
-        print("I loaded :O")
-        
-        // Do any additional setup after loading the view.
+    override init() {
+        super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil)
     }
     
-    
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        print(peripheral)
-        
-        
         
         if peripheral.identifier == UUID(uuidString: "3AFF94D8-6E6C-4A6B-F457-3A04D200B43A") {
+            print(peripheral)
             blePeripheral = peripheral
             centralManager.stopScan()
             centralManager.connect(blePeripheral!, options: nil)
@@ -156,27 +100,6 @@ class BluetoothController: UIViewController {
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         peripheral.discoverServices(nil)
     }
-    
-    func sendShit() {
-        print("I WORKED!")
-        
-        let data: Data = "0".data(using: .utf8)!
-        
-        for characteristic in writeCharacteristics! {
-            blePeripheral?.writeValue(data, for: characteristic, type: .withResponse)
-            print(characteristic)
-        }
-    }
-    
-    /*
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
-     */
     
 }
 
@@ -215,41 +138,62 @@ extension BluetoothController: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
         
-        print("Checking SHIT")
-        
         for service in services {
-            print(service)
-            peripheral.discoverCharacteristics(nil, for: service)
+            if service.uuid.uuidString == BluetoothCommunication.Service.rawValue {
+                bleService = service
+                peripheral.discoverCharacteristics(nil, for: service)
+            }
         }
-    }
-    
-    func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
-        
-        print("Services Modified :(")
-        
-        centralManager.scanForPeripherals(withServices: nil)
-        
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else { return }
         
         for characteristic in characteristics {
-            print(characteristic)
-            
-            print(characteristic.service)
-            
-            if(characteristic.properties.contains(.read)){
-                print("I can read shit!")            }
-            if(characteristic.properties.contains(.write)){
-                self.writeCharacteristics!.append(characteristic)
-                print("I can write shit!")
-            }
-            if(characteristic.properties.contains(.notify)){
-                print("I can notify shit!")
+            let uuid = characteristic.uuid.uuidString
+            switch uuid {
+                
+            //Notifications from Channel 1
+            case BluetoothCommunication.Channel1.Notify.VoltageOut.rawValue:
                 peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel1.Notify.CurrentOut.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel1.Notify.VoltageSet.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel1.Notify.CurrentSet.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel1.Notify.PowerSet.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel1.Notify.Limiting.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            
+            //Notifications from Channel 2
+            case BluetoothCommunication.Channel2.Notify.VoltageOut.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel2.Notify.CurrentOut.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel2.Notify.VoltageSet.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel2.Notify.CurrentOut.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel2.Notify.PowerSet.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            case BluetoothCommunication.Channel2.Notify.Limiting.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+            
+            //Notifications from Settings
+            case BluetoothCommunication.Settings.Notify.Mode.rawValue:
+                peripheral.setNotifyValue(true, for: characteristic)
+                
+            default:
+                print("Unsubscriable characteristic: ",uuid)
             }
         }
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
+        centralManager.scanForPeripherals(withServices: nil)
+        
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
@@ -257,50 +201,115 @@ extension BluetoothController: CBPeripheralDelegate {
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        //print(characteristic)
-        print(characteristic.uuid.uuidString)
         
-        switch characteristic.uuid.uuidString {
+        //print("Update for: ",characteristic)
+        
+        let uuid = characteristic.uuid.uuidString
+        switch uuid {
+            
+        //Notifications from Channel 1
         case BluetoothCommunication.Channel1.Notify.VoltageOut.rawValue:
-            time = time + 1
-            print(time)
-        case BluetoothCommunication.Channel1.Notify.CurrentOut.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel1.Notify.VoltageSet.rawValue: print("current out")
-        case BluetoothCommunication.Channel1.Notify.CurrentOut.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel1.Notify.PowerSet.rawValue: print("current out")
-        case BluetoothCommunication.Channel1.Write.VoltageSet.rawValue: print("current out")
-        case BluetoothCommunication.Channel1.Write.CurrentSet.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel1.Write.PowerSet.rawValue: print("current out")
-        case BluetoothCommunication.Channel1.Notify.Limiting.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel2.Notify.VoltageOut.rawValue: print("current out")
-        case BluetoothCommunication.Channel2.Notify.CurrentOut.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel2.Notify.VoltageSet.rawValue: print("current out")
-        case BluetoothCommunication.Channel2.Notify.CurrentOut.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel2.Notify.PowerSet.rawValue: print("current out")
-        case BluetoothCommunication.Channel2.Notify.Limiting.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel2.Write.VoltageSet.rawValue: print("current out")
-        case BluetoothCommunication.Channel2.Write.CurrentSet.rawValue: print("voltage out")
-        case BluetoothCommunication.Channel2.Write.PowerSet.rawValue: print("current out")
-        case BluetoothCommunication.Settings.Notify.Mode.rawValue: print("raw value")
-        case BluetoothCommunication.Settings.Write.Mode.rawValue: print("raw value")
-        default:
-            print("None found")
+            ch1NotifyDelegate?.VoltageOut(data: characteristic.value)
+        case BluetoothCommunication.Channel1.Notify.CurrentOut.rawValue:
+            ch1NotifyDelegate?.CurrentOut(data: characteristic.value)
+        case BluetoothCommunication.Channel1.Notify.VoltageSet.rawValue:
+            ch1NotifyDelegate?.VoltageSet(data: characteristic.value)
+            print("Update for: ",characteristic)
+        case BluetoothCommunication.Channel1.Notify.CurrentSet.rawValue:
+            ch1NotifyDelegate?.CurrentSet(data: characteristic.value)
+            print("Update for: ",characteristic)
+        case BluetoothCommunication.Channel1.Notify.PowerSet.rawValue:
+            ch1NotifyDelegate?.PowerSet(data: characteristic.value)
+            print("Update for: ",characteristic)
+        case BluetoothCommunication.Channel1.Notify.Limiting.rawValue:
+            ch1NotifyDelegate?.Limiting(data: characteristic.value)
+            print("Update for: ",characteristic)
+        
+        //Notifications from Channel 2
+        case BluetoothCommunication.Channel2.Notify.VoltageOut.rawValue:
+            ch2NotifyDelegate?.VoltageOut(data: characteristic.value)
+        case BluetoothCommunication.Channel2.Notify.CurrentOut.rawValue:
+            ch2NotifyDelegate?.CurrentOut(data: characteristic.value)
+        case BluetoothCommunication.Channel2.Notify.VoltageSet.rawValue:
+            ch2NotifyDelegate?.VoltageSet(data: characteristic.value)
+        case BluetoothCommunication.Channel2.Notify.CurrentOut.rawValue:
+            ch2NotifyDelegate?.CurrentSet(data: characteristic.value)
+        case BluetoothCommunication.Channel2.Notify.PowerSet.rawValue:
+            ch2NotifyDelegate?.PowerSet(data: characteristic.value)
+        case BluetoothCommunication.Channel2.Notify.Limiting.rawValue:
+            ch2NotifyDelegate?.Limiting(data: characteristic.value)
+        
+        //Notifications from Settings
+        case BluetoothCommunication.Settings.Notify.Mode.rawValue: settingsNotifyDelegate?.Mode(data: characteristic.value)
+            
+        default: print(uuid + "is not a valid characteristic")
         }
         
     }
     
-    private func testCharacteristic(from characteristic: CBCharacteristic) -> String {
-        
-        guard let characteristicData = characteristic.value else { return "nil" }
-        
-        let byteArray = [UInt8](characteristicData)
-        
-        if let data = String(bytes: byteArray, encoding: .utf8) {
-            return data
+    func WriteCharacteristic(uuid: String, value: Any) {
+        if let peripheral = blePeripheral {
+            if let service = bleService {
+                if let characteristics = service.characteristics {
+                    for characteristic in characteristics {
+                        if characteristic.uuid.uuidString == uuid {
+                            if let data = value as? Data {
+                                peripheral.writeValue(data, for: characteristic, type: .withResponse)
+                            }
+                            else {
+                                print("Error casting vale to Data")
+                            }
+                        }
+                    }
+                }
+                else {
+                    print("Error getting Bluetooth Characteristics")
+                }
+            }
+            else {
+                print("Error finding Bluetooth Service")
+            }
         }
         else {
-            return "nil"
+            print("Error getting Bluetooth Peripheral")
         }
+    }
+}
+
+extension BluetoothController: ChannelWriteDelegate, SettingsWriteDelegate {
+    
+    func VoltageSet(value: Double, id: Int) {
+        print(value,id)
+        if(id == 0) {
+//            WriteCharacteristic(uuid: BluetoothCommunication.Channel1.Write.VoltageSet.rawValue, value: value)
+        }
+        else {
+//            WriteCharacteristic(uuid: BluetoothCommunication.Channel2.Write.VoltageSet.rawValue, value: value)
+        }
+    }
+    
+    func CurrentSet(value: Double, id: Int) {
+        print(value,id)
+        if(id == 0) {
+//            WriteCharacteristic(uuid: BluetoothCommunication.Channel1.Write.VoltageSet.rawValue, value: value)
+        }
+        else {
+//            WriteCharacteristic(uuid: BluetoothCommunication.Channel1.Write.VoltageSet.rawValue, value: value)
+        }
+    }
+    
+    func PowerSet(value: Bool, id: Int) {
+        print(value,id)
+        if(id == 0) {
+//            WriteCharacteristic(uuid: BluetoothCommunication.Channel1.Write.VoltageSet.rawValue, value: value)
+        }
+        else {
+//            WriteCharacteristic(uuid: BluetoothCommunication.Channel1.Write.VoltageSet.rawValue, value: value)
+        }
+    }
+    
+    func Mode(value: Int) {
+//        WriteCharacteristic(uuid: BluetoothCommunication.Settings.Write.Mode.rawValue, value: value)
     }
     
 }
