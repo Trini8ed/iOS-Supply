@@ -18,6 +18,8 @@ struct MainView: View {
     @ObservedObject var channel2VM = ChannelViewModel()
     
     init() {
+        channel1VM.id = 0
+        channel2VM.id = 1
         bluetoothController.ch1NotifyDelegate = channel1VM
         bluetoothController.ch2NotifyDelegate = channel2VM
         channel1VM.channelWriteDelegate = bluetoothController

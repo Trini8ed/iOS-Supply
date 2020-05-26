@@ -25,6 +25,8 @@ protocol ChannelWriteDelegate {
 
 class ChannelViewModel: ObservableObject {
     
+    var timer: Timer = Timer()
+    
     var id:Int = 0
     
     var channelWriteDelegate: ChannelWriteDelegate?
@@ -32,6 +34,10 @@ class ChannelViewModel: ObservableObject {
     @Published var voltage:Double = 0.0
     @Published var current:Double = 0.0
     @Published var limited = false
+    
+    init() {
+        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(randomUIChange), userInfo: nil, repeats: true)
+    }
     
     @Published var voltageSet:Double = 0.0 {
         willSet {
@@ -49,6 +55,15 @@ class ChannelViewModel: ObservableObject {
         willSet {
             channelWriteDelegate?.PowerSet(value: active, id: id) //delegate
         }
+    }
+    
+    @objc func randomUIChange() {
+        voltage = Double.random(in: 0 ..< 24)
+        current = Double.random(in: 0 ..< 24)
+        voltageSet = Double.random(in: 0 ..< 3)
+        currentSet = Double.random(in: 0 ..< 3)
+        active = Bool.random()
+        limited = Bool.random()
     }
 }
 
