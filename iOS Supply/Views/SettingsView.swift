@@ -11,19 +11,20 @@ import SwiftUI
 struct SettingsView: View {
     
     @State private var selectorMode = 0
-    @State private var modeRange = ["Independent", "Series", "Parallel"]
+    @State private var modeRange = ["Independent", "Series", "Parallel", "Disabled"]
     
     var body: some View {
-        HStack {
-            Text("Output Operation Mode:")
-                .font(.body)
-            Picker("voltageSet", selection: $selectorMode) {
-                ForEach(0 ..< modeRange.count) { index in
-                    Text(self.modeRange[index])
-                }
-            }.pickerStyle(SegmentedPickerStyle())
-            
-        }.padding()
+        VStack {
+            HStack {
+                Text("Output Operation Mode:")
+                    .font(.body)
+                Picker("voltageSet", selection: $selectorMode) {
+                    ForEach(0 ..< modeRange.count) { index in
+                        Text(self.modeRange[index])
+                    }
+                }.pickerStyle(SegmentedPickerStyle())
+            }.padding(.horizontal)
+        }
     }
 }
 

@@ -9,15 +9,44 @@
 import SwiftUI
 
 struct MainView: View {
+    
+    //initalize our bluetooth controll
+    //var ble = BluetoothController()
+    var ch1 = ChannelView()
+    var ch2 = ChannelView()
+    
+    //initialize our viewmodels
+    @ObservedObject var settingsVM = SettingsViewModel()
+    
+//    init() {
+//        ble.testingBluetooth()
+//    }
+    
     var body: some View {
-        VStack {
-            Spacer()
-            Text("iOS Power Supply")
+        VStack (spacing: 10) {
+            HStack {
+              Text("Settings:").bold()
                 .font(.largeTitle)
-            SettingsView()
-            ChannelView()
-            ChannelView()
-            Spacer()
+                Spacer()
+            
+                }.padding(.horizontal)
+                .padding(.horizontal)
+            SettingsView().padding(.horizontal)
+            HStack {
+              Text("Channel 1:").bold()
+                .font(.largeTitle)
+                Spacer()
+            
+                }.padding(.horizontal)
+                .padding(.horizontal)
+            ch1
+            HStack {
+              Text("Channel 2:").bold()
+                .font(.largeTitle)
+                Spacer()
+            }.padding(.horizontal)
+            .padding(.horizontal)
+            ch2
         }
     }
 }

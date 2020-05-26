@@ -10,9 +10,9 @@
 		34402B332470D134003F3FBF /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34402B322470D134003F3FBF /* MainView.swift */; };
 		34402B352470D594003F3FBF /* ChannelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34402B342470D594003F3FBF /* ChannelView.swift */; };
 		34402B372470D5A7003F3FBF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34402B362470D5A7003F3FBF /* SettingsView.swift */; };
-		34AD40B32470AE5B005FDC4A /* ChannelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AD40B22470AE5B005FDC4A /* ChannelData.swift */; };
-		34AD40B52470CDE7005FDC4A /* ChannelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AD40B42470CDE7005FDC4A /* ChannelSettings.swift */; };
-		34AD40B72470CFA1005FDC4A /* MainModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AD40B62470CFA1005FDC4A /* MainModel.swift */; };
+		3495F39F24727B5C00CFD9C8 /* BluetoothController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3495F39E24727B5C00CFD9C8 /* BluetoothController.swift */; };
+		34AD40B32470AE5B005FDC4A /* ChannelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AD40B22470AE5B005FDC4A /* ChannelViewModel.swift */; };
+		34AD40B52470CDE7005FDC4A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AD40B42470CDE7005FDC4A /* SettingsViewModel.swift */; };
 		34E14C32246E7D5300A889C7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E14C31246E7D5300A889C7 /* AppDelegate.swift */; };
 		34E14C34246E7D5300A889C7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E14C33246E7D5300A889C7 /* SceneDelegate.swift */; };
 		34E14C36246E7D5300A889C7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E14C35246E7D5300A889C7 /* ContentView.swift */; };
@@ -25,10 +25,10 @@
 		34402B322470D134003F3FBF /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		34402B342470D594003F3FBF /* ChannelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChannelView.swift; sourceTree = "<group>"; usesTabs = 1; };
 		34402B362470D5A7003F3FBF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		3495F39E24727B5C00CFD9C8 /* BluetoothController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothController.swift; sourceTree = "<group>"; usesTabs = 0; };
 		34AD40AF24708DA3005FDC4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		34AD40B22470AE5B005FDC4A /* ChannelData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelData.swift; sourceTree = "<group>"; };
-		34AD40B42470CDE7005FDC4A /* ChannelSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelSettings.swift; sourceTree = "<group>"; };
-		34AD40B62470CFA1005FDC4A /* MainModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainModel.swift; sourceTree = "<group>"; };
+		34AD40B22470AE5B005FDC4A /* ChannelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelViewModel.swift; sourceTree = "<group>"; };
+		34AD40B42470CDE7005FDC4A /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		34E14C2E246E7D5300A889C7 /* iOS Supply.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS Supply.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		34E14C31246E7D5300A889C7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		34E14C33246E7D5300A889C7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -62,6 +62,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		3495F39B24727A9E00CFD9C8 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				3495F39E24727B5C00CFD9C8 /* BluetoothController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
 		34AD409F246F98B0005FDC4A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -79,9 +87,8 @@
 		34AD40B12470AE42005FDC4A /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				34AD40B22470AE5B005FDC4A /* ChannelData.swift */,
-				34AD40B42470CDE7005FDC4A /* ChannelSettings.swift */,
-				34AD40B62470CFA1005FDC4A /* MainModel.swift */,
+				34AD40B22470AE5B005FDC4A /* ChannelViewModel.swift */,
+				34AD40B42470CDE7005FDC4A /* SettingsViewModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -107,6 +114,7 @@
 		34E14C30246E7D5300A889C7 /* iOS Supply */ = {
 			isa = PBXGroup;
 			children = (
+				3495F39B24727A9E00CFD9C8 /* Controllers */,
 				34402B312470D126003F3FBF /* Views */,
 				34AD40B12470AE42005FDC4A /* Models */,
 				34E14C31246E7D5300A889C7 /* AppDelegate.swift */,
@@ -253,12 +261,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				34402B352470D594003F3FBF /* ChannelView.swift in Sources */,
-				34AD40B52470CDE7005FDC4A /* ChannelSettings.swift in Sources */,
+				3495F39F24727B5C00CFD9C8 /* BluetoothController.swift in Sources */,
+				34AD40B52470CDE7005FDC4A /* SettingsViewModel.swift in Sources */,
 				34402B332470D134003F3FBF /* MainView.swift in Sources */,
 				34402B372470D5A7003F3FBF /* SettingsView.swift in Sources */,
 				34E14C32246E7D5300A889C7 /* AppDelegate.swift in Sources */,
-				34AD40B32470AE5B005FDC4A /* ChannelData.swift in Sources */,
-				34AD40B72470CFA1005FDC4A /* MainModel.swift in Sources */,
+				34AD40B32470AE5B005FDC4A /* ChannelViewModel.swift in Sources */,
 				34E14C34246E7D5300A889C7 /* SceneDelegate.swift in Sources */,
 				34E14C36246E7D5300A889C7 /* ContentView.swift in Sources */,
 			);
